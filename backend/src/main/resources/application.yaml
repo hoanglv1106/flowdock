@@ -7,6 +7,17 @@ spring:
     password: ${FLOWDOCK_DB_PASSWORD}
   flyway:
     clean-disabled: true
+  kafka:
+    bootstrap-servers: ${FLOWDOCK_KAFKA_BOOTSTRAP_SERVERS:127.0.0.1:19092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+      properties:
+        enable.idempotence: true
+        max.block.ms: 5000
+        request.timeout.ms: 3000
+        delivery.timeout.ms: 10000
 server:
   address: 127.0.0.1
 management:
