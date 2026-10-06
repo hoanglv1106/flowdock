@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: flowdock-backend
+  datasource:
+    url: ${FLOWDOCK_DB_URL}
+    username: ${FLOWDOCK_DB_USER}
+    password: ${FLOWDOCK_DB_PASSWORD}
+  flyway:
+    clean-disabled: true
+server:
+  address: 127.0.0.1
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+  datasource:
+    url: ${FLOWDOCK_DB_URL:jdbc:postgresql://127.0.0.1:15432/flowdock}
+    username: ${FLOWDOCK_DB_USER:flowdock_lab}
+    password: ${FLOWDOCK_DB_PASSWORD:flowdock_lab_only}
+server:
+  port: ${FLOWDOCK_BACKEND_PORT:18080}

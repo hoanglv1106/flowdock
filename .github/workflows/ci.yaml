@@ -1,0 +1,71 @@
+name: Foundation CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  focused:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: '21.0.12+8'
+      - run: ./mvnw -B -ntp clean verify
+
+  infrastructure:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: '21.0.12+8'
+      - name: Start dedicated infrastructure on runner Docker
+        run: |
+          docker version
+          docker compose -f infra/compose.yaml config --quiet
+          docker compose -f infra/compose.yaml up -d --wait --wait-timeout 180 postgres kafka
+          docker compose -f infra/compose.yaml run --rm kafka-init
+          docker compose -f infra/compose.yaml run --rm kafka-init
+      - name: Real host Kafka and fresh database migration tests
+        run: ./mvnw -B -ntp -Pintegration verify
+      - name: Internal listener and application health
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker compose -f infra/compose.yaml exec -T kafka /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --describe --topic flowdock.payment.events
+          java -jar backend/target/backend-0.0.1-SNAPSHOT.jar --spring.profiles.active=local > /tmp/flowdock-backend.log 2>&1 &
+          backend_pid=$!
+          java -jar worker/target/worker-0.0.1-SNAPSHOT.jar --spring.profiles.active=local > /tmp/flowdock-worker.log 2>&1 &
+          worker_pid=$!
+          trap 'kill "$backend_pid" "$worker_pid" 2>/dev/null || true' EXIT
+          deadline=$((SECONDS + 60))
+          for port in 18080 18081; do
+            until curl --fail --silent "http://127.0.0.1:$port/actuator/health" | grep -q '"status":"UP"'; do
+              if (( SECONDS >= deadline )); then
+                cat /tmp/flowdock-backend.log /tmp/flowdock-worker.log
+                exit 1
+              fi
+              sleep 1
+            done
+          done
+      - name: Infrastructure diagnostics on failure
+        if: failure()
+        run: docker compose -f infra/compose.yaml logs --tail 100
+      - name: Stop this runner's FlowDock project (retain volumes)
+        if: always()
+        run: docker compose -f infra/compose.yaml down
