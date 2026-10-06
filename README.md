@@ -2,6 +2,8 @@
 
 Repository nền tảng cho lab Java/Spring/PostgreSQL/Kafka. Đây chưa phải MVP và chưa có xử lý payment.
 
+**P0 foundation đã kiểm chứng (2026-10-06):** public repo, CI thực tế và clean-checkout walkthrough đã đạt. Xem [evidence, source commit và giới hạn kiểm chứng](docs/verification.md#p0-closeout-scope). P1 và các reliability scenarios chưa implement.
+
 `core` đóng gói migration dùng chung và integration tests; `backend` và `worker` là hai Spring Boot application riêng có Actuator health. Worker chưa có Kafka listener. Migration V1 chỉ tạo namespace `flowdock`, không tạo schema nghiệp vụ tương lai.
 
 ## Phân định: Kiến trúc đã duyệt (Accepted Design) vs. Hiện trạng mã nguồn (Implemented Foundation)
