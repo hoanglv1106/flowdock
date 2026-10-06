@@ -33,6 +33,8 @@ Repository nền tảng cho lab Java/Spring/PostgreSQL/Kafka. Đây chưa phải
 
 [Spring Boot requirements](https://docs.spring.io/spring-boot/3.5/system-requirements.html) xác nhận hỗ trợ Java 21. Dependency/plugin versions dùng parent/BOM cố định; không nâng riêng từng dependency. [BOM coordinates](https://docs.spring.io/spring-boot/3.5/appendix/dependency-versions/coordinates.html), [Kafka Docker 4.1](https://kafka.apache.org/41/getting-started/docker/), [PostgreSQL release notes](https://www.postgresql.org/docs/release/), [Maven Wrapper](https://maven.apache.org/tools/wrapper/).
 
+CI dùng selector Temurin `21.0.12+8.0.LTS` theo SemVer trong [catalog GA Adoptium](https://api.adoptium.net/v3/assets/feature_releases/21/ga?architecture=x64&heap_size=normal&image_type=jdk&jvm_impl=hotspot&os=linux&page_size=5&project=jdk&vendor=eclipse); đây vẫn là runtime Java 21.0.12 build 8, không phải nâng version.
+
 Policy: pin exact Maven parent, dependencies ngoài BOM, plugins và image tags; không dùng `latest`/range cho dependencies. Enforcer dùng range chỉ để kiểm tra JVM là Java 21. Actions pin full commit SHA kèm version: checkout v7.0.1 và setup-java v6.0.1. Image tags vẫn có thể được registry cập nhật; digest của image đã chạy được ghi trong verification report. Khi nâng version phải chạy lại gates. Wrapper distribution có SHA-256; `only-script` không cần wrapper JAR.
 
 ## Windows: Java và build

@@ -20,7 +20,7 @@ jobs:
       - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
         with:
           distribution: temurin
-          java-version: '21.0.12+8'
+          java-version: '21.0.12+8.0.LTS'
       - run: ./mvnw -B -ntp clean verify
 
   infrastructure:
@@ -33,7 +33,7 @@ jobs:
       - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
         with:
           distribution: temurin
-          java-version: '21.0.12+8'
+          java-version: '21.0.12+8.0.LTS'
       - name: Start dedicated infrastructure on runner Docker
         run: |
           docker version

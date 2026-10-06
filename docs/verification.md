@@ -92,4 +92,13 @@ Executed by the Captain after the documentation reviews, independently of the or
 
 - Portable project `gh.exe auth status`: authenticated active account `hoanglv1106`, HTTPS, keyring. `gh api user` independently confirmed login `hoanglv1106` and numeric ID `250913612`; public author identity will use `250913612+hoanglv1106@users.noreply.github.com`. No token is recorded here.
 - At the start of this follow-up: local `main` has no commit, no configured remote, and the authenticated repository lookup cannot resolve `hoanglv1106/flowdock`.
-- Commit/push, remote CI and clean-checkout rehearsal are still pending at this checkpoint. Authentication success and historical local tests do not close P0 by themselves.
+- Commit/push, remote CI and clean-checkout rehearsal were still pending at this checkpoint. Authentication success and historical local tests do not close P0 by themselves.
+
+### Publication and first remote CI
+
+- Initial commit: `a884d47777860cbab6505e64f98d64e2ec2ba178`, 25 reviewed files. Both unstaged/staged diff checks passed after removing a newly introduced blank EOF line. Wrapper `mvnw` is tracked as executable (`100755`); `.env`, `.local` and `target` exclusions were checked. Pattern scan of staged diff found no common GitHub/AWS/private-key/Slack credential patterns; public lab defaults are intentional. This is not a dedicated scanner or a proof of absence of every secret.
+- Repo-local Git identity uses the confirmed GitHub noreply address. Repo-local GitHub credential helper delegates to the portable CLI/keyring; no global identity/helper or token file was changed.
+- Created [public repo hoanglv1106/flowdock](https://github.com/hoanglv1106/flowdock), checked its visibility and empty remote refs, then normal-pushed `main` (no force). A fresh public clone independently confirmed the exact initial commit and wrapper executable bit.
+- [First Actions run 37399761194](https://github.com/hoanglv1106/flowdock/actions/runs/37399761194): **FAILED** in both jobs at setup-java, before any build, Compose startup or tests. Error: no matching SemVer `21.0.12+8`. The failed/skipped gates are not PASS.
+- Official [setup-java version syntax](https://github.com/actions/setup-java/blob/de7274f081f381c8f8158605e0321c36c376e2e6/README.md#supported-version-syntax) and [Adoptium GA catalog](https://api.adoptium.net/v3/assets/feature_releases/21/ga?architecture=x64&heap_size=normal&image_type=jdk&jvm_impl=hotspot&os=linux&page_size=5&project=jdk&vendor=eclipse) confirm Linux x64 JDK release `jdk-21.0.12+8`, SemVer `21.0.12+8.0.LTS`. Corrected both workflow selectors to that full SemVer; Java major/patch/build, action SHA pins and all gates remain unchanged.
+- CI after this correction and full fresh-checkout infrastructure rehearsal are still pending here. No P0 completion claimed at this checkpoint.
