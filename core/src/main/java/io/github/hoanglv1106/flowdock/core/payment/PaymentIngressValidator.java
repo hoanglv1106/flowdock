@@ -33,7 +33,12 @@ public final class PaymentIngressValidator {
     public static PaymentPayload validate(String transactionId, Long amount, String currency) {
         requirePresent(transactionId, "transactionId");
         requirePresent(currency, "currency");
-        Objects.requireNonNull(amount, "amount is required");
+        if (amount == null) {
+            throw new IngressRejectionException("amount is required");
+        }
+        if (transactionId.length() > IdentityLimits.MAX_IDENTIFIER_LENGTH) {
+            throw new IngressRejectionException("transactionId exceeds the configured identifier limit");
+        }
 
         String normalisedCurrency = currency.trim().toUpperCase(Locale.ROOT);
         if (normalisedCurrency.length() != 3 || !ISO_CODES.contains(normalisedCurrency)) {

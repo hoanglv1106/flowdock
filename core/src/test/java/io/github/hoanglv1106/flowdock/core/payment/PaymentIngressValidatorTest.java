@@ -63,8 +63,10 @@ class PaymentIngressValidatorTest {
     @Test
     void missingAmountIsRejectedSeparatelyFromBounds() {
         assertThatThrownBy(() -> PaymentIngressValidator.validate("tx-1", null, "USD"))
-                .isInstanceOf(NullPointerException.class)
+                .isInstanceOf(PaymentIngressValidator.IngressRejectionException.class)
                 .hasMessageContaining("amount is required");
+        assertThatThrownBy(() -> PaymentIngressValidator.validate("x".repeat(65), 100L, "USD"))
+                .isInstanceOf(PaymentIngressValidator.IngressRejectionException.class);
     }
 
     @Test
